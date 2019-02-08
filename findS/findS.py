@@ -1,6 +1,6 @@
 import pandas as pd
 
-dataset = pd.read_csv('data.csv')
+dataset = pd.read_csv('dataset.csv')
 
 def checkUnique(row):
     for i in range(len(row)):

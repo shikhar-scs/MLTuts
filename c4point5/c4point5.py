@@ -10,9 +10,13 @@ def find_entropy(ent_data):
     return -(yes_data/total*(math.log(yes_data/total)) + no_data/total*(math.log(no_data/total)))/math.log(2)
 
 def find_gain(gain_data, attr):
-        attr_gain_val = [find_entropy(gain_data.loc[gain_data.iloc[:, 0] == att]) for att in attr]
-        attr_gain_len = [len(gain_data.loc[gain_data.iloc[:, 0] == att]) for att in attr]
-        return sum([x*y/sum(attr_gain_len) for x,y in zip(attr_gain_len,attr_gain_val)])
+    attr_gain_val = [find_entropy(gain_data.loc[gain_data.iloc[:, 0] == att]) for att in attr]
+    attr_gain_len = [len(gain_data.loc[gain_data.iloc[:, 0] == att]) for att in attr]
+    return sum([x*y/sum(attr_gain_len) for x,y in zip(attr_gain_len,attr_gain_val)])
+
+def find_split_info(split_data, attr, total):
+    attr_gain_val = [len(split_data.loc[split_data.iloc[:, 0] == att]) for att in attr]
+    return -sum([(x/total)*math.log(x/total) for x in attr_gain_val])/math.log(2)
 
 def id3(dataset, level, col):
     attributes = []
@@ -21,7 +25,7 @@ def id3(dataset, level, col):
 
     for i, attribute in enumerate(attributes[0]):
         temp_data = dataset.iloc[:,(i,col-1)]
-        gain_s_a = find_entropy(temp_data)-find_gain(temp_data, attribute)
+        gain_s_a = (find_entropy(temp_data)-find_gain(temp_data, attribute))/find_split_info(temp_data, attribute, len(temp_data))
         if gain_val[0] <= gain_s_a:
             gain_val = [gain_s_a, i, dataset.columns[i]]
     if gain_val[0] == 0:
@@ -34,7 +38,7 @@ def id3(dataset, level, col):
 
 data = pd.read_csv('play_tennis.csv')
 fin_values = []
-id3(data,0, data.shape[1])
+id3(data,0,data.shape[1])
 level_texts = [None]*(data.shape[1])
 
 for i in range(len(fin_values)):
